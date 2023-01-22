@@ -2,12 +2,10 @@ package hiber.dao;
 
 import hiber.model.Car;
 import hiber.model.User;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,20 +24,28 @@ public class UserDaoImp implements UserDao {
     @Override
     @SuppressWarnings("unchecked")
     public List<User> listUsers() {
-        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("from User");
+        TypedQuery<User> query = sessionFactory.openSession().createQuery("from User");
         return query.getResultList();
     }
 
     @Override
     public List<Car> listCars() {
-        return sessionFactory.openSession().createNativeQuery("SELECT * FROM cars", Car.class).getResultList();
+//        return sessionFactory.openSession().createNativeQuery("SELECT * FROM cars", Car.class).getResultList();
+        return listUsers()
+                .stream().map(User::getCar)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<User> getUserByCar(int series, String model) {
-        String request = String.format("SELECT * FROM cars WHERE series = %d AND model = \"%s\"", series, model);
-        return sessionFactory.openSession().createNativeQuery(request, Car.class)
-                .stream().map(Car::getUser)
-                .collect(Collectors.toList());
+//        String request = String.format("SELECT * FROM cars WHERE series = %d AND model = \"%s\"", series, model);
+//        return sessionFactory.openSession().createNativeQuery(request, Car.class)
+//                .stream().map(Car::getUser)
+//                .collect(Collectors.toList());
+
+        List<User> result = sessionFactory.openSession().createQuery(
+                        "FROM User as user where user.car.series = " + series, User.class)
+                .getResultList();
+        return result;
     }
 }
