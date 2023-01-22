@@ -31,9 +31,10 @@ public class UserDaoImp implements UserDao {
     @Override
     public List<Car> listCars() {
 //        return sessionFactory.openSession().createNativeQuery("SELECT * FROM cars", Car.class).getResultList();
-        return listUsers()
-                .stream().map(User::getCar)
-                .collect(Collectors.toList());
+//        return listUsers()
+//                .stream().map(User::getCar)
+//                .collect(Collectors.toList());
+        return sessionFactory.openSession().createQuery("from Car", Car.class).getResultList();
     }
 
     @Override
